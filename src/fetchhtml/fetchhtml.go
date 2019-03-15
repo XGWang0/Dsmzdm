@@ -1,9 +1,9 @@
 package fetchhtml
 
 import (
-	"commlib"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"logo"
 	"net/url"
 	"os"
 	"path"
@@ -30,7 +30,8 @@ type SMZDM struct {
 	Vendor      string
 }
 
-var ItemList = make([]SMZDM, 1)
+var ItemList []SMZDM
+
 var SMZDMDocList []*goquery.Document
 var AppendLock sync.Mutex
 
@@ -39,7 +40,7 @@ func HadelSinglePage(url string, commentcnt, votecnt int) {
 	//SMZDMDoc, err := goquery.NewDocument(SmzdmRootUrl)
 	SMZDMDoc, err := goquery.NewDocument(url)
 	if err != nil {
-		commlib.Mtrloggger.Println("[ERROR]:", err.Error())
+		logo.Log.Fatal(err.Error())
 		os.Exit(1)
 	}
 
@@ -98,6 +99,8 @@ func HadelSinglePage(url string, commentcnt, votecnt int) {
 }
 
 func HandelAllUrl(page, commentcnt, votecnt int) {
+	logo.Log.Debug("ffffffffffffffffffffff")
+	ItemList = ItemList[:0]
 	var url_wg sync.WaitGroup
 	for i := 1; i <= page; i++ {
 		url_wg.Add(1)
@@ -130,11 +133,11 @@ func PringItemList() {
 	fmt.Printf("Total Filter %d Items\n", len(ItemList)+1)
 	for i, value := range ItemList {
 		fmt.Printf("------------------------------------------\n")
-		fmt.Printf("No.%dth [%s %s]\n", i+1, value.Title, value.Price)
+		fmt.Printf("No.%d [%s %s]\n", i+1, value.Title, value.Price)
 		fmt.Printf("Product Link  : %s\n", value.Link)
 		fmt.Printf("Deliver Time  : %s\n", value.DataTime)
 		fmt.Printf("Comment Count : %d\n", value.CommentCont)
-		fmt.Printf("Vote Count    : %d\n", value.Vote)
+		fmt.Printf("[UN]Vote Count : (V)%d, (UV)%d)\n", value.Vote, value.Unvote)
 		fmt.Printf("Product Vendor  : %#v\n", value.Vendor)
 	}
 	fmt.Printf("\n------------------------------------------\n")
